@@ -65,11 +65,16 @@ def generate_launch_description():
     )
 
     # The URDF already defines imu_link, so the IMU launch must not publish its own TF.
+    # params_file must be passed explicitly: the Aria launch above sets a launch
+    # configuration of the same name, which would otherwise leak into this include.
+    imu_dir = get_package_share_directory('bno055_usb_stick')
     imu_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(
-            get_package_share_directory('bno055_usb_stick'), 'launch',
-            'bno055_usb_stick.launch.py')),
-        launch_arguments={'publish_tf': 'false'}.items(),
+        PythonLaunchDescriptionSource(
+            os.path.join(imu_dir, 'launch', 'bno055_usb_stick.launch.py')),
+        launch_arguments={
+            'publish_tf': 'false',
+            'params_file': os.path.join(imu_dir, 'config', 'params.yaml'),
+        }.items(),
         condition=IfCondition(use_imu),
     )
 
