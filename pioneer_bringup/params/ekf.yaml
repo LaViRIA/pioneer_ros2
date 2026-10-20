@@ -1,0 +1,32 @@
+# robot_localization EKF for the Pioneer 3AT: wheel odometry + BNO055 gyro -> odom -> base_link.
+# Skid-steer odometry over-reports rotation by ~5% and slips in turns, so heading comes
+# mainly from the gyro; forward speed comes from the wheels.
+ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.5
+    two_d_mode: true
+    publish_tf: true
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # [x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az]
+    # vy is fused as the non-holonomic constraint (Aria reports 0). vyaw from the wheels is
+    # a fallback only: its variance (1e-2) is ~20x the gyro's, so the gyro dominates.
+    odom0: /odom
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  true,  false,
+                   false, false, true,
+                   false, false, false]
+    odom0_queue_size: 10
+
+    imu0: /imu/data
+    imu0_config: [false, false, false,
+                  false, false, false,
+                  false, false, false,
+                  false, false, true,
+                  false, false, false]
+    imu0_queue_size: 50

@@ -1,0 +1,19 @@
+# Pioneer Aria for slam_sensors.launch.py with the EKF: same as pioneer_aria default.yaml
+# but without the wheel-odometry TF.
+aria:
+  ros__parameters:
+    serial_port: "/dev/ttyS0"
+    serial_baudrate: 9600
+    module_plugins: [ "charger", "sonar", "drive" ]
+    charger:
+      plugin: "pioneer_modules::Charger"
+    sonar:
+      plugin: "pioneer_modules::Sonar"
+    drive:
+      plugin: "pioneer_modules::Drive"
+      robot_base_frame: "base_link"
+      odom_frame: "odom"
+      odom_topic: "odom"
+      publish_tf: false         # the EKF (ekf.yaml) publishes odom -> base_link
+      velocity_timeout: 500
+      enable_stamped_cmd_vel: true
