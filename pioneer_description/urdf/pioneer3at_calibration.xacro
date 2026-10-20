@@ -104,12 +104,14 @@
   <xacro:property name="gps_rot_y" value="0.0" />
   <xacro:property name="gps_rot_z" value="0.0" />
 
-  <!-- IMU -->
+  <!-- IMU: BNO055 USB stick standing with its USB-A connector down, sensor +x facing
+       left and +z facing backward. Rotation measured from gravity and lidar scan
+       matching on 2026-10-20; the stick's position barely matters for a gyro. -->
   <xacro:property name="imu_trans_x" value="0.0" />
   <xacro:property name="imu_trans_y" value="-0.10" />
   <xacro:property name="imu_trans_z" value="0.0" />
-  <xacro:property name="imu_rot_x" value="0.0" />
-  <xacro:property name="imu_rot_y" value="0.0" />
-  <xacro:property name="imu_rot_z" value="0.0" />
+  <xacro:property name="imu_rot_x" value="-1.5179" />
+  <xacro:property name="imu_rot_y" value="0.0110" />
+  <xacro:property name="imu_rot_z" value="1.5714" />
 
 </robot>

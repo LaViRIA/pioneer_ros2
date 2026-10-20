@@ -333,7 +333,17 @@ nav_msgs::msg::Odometry Drive::ariaToRosOdometry(
   // Aria returns the velocity in mm/s and the angle in degrees
   odom_msg.twist.twist.linear.x = linear_vel_x / 1000.0;
   odom_msg.twist.twist.linear.y = linear_vel_y / 1000.0;
-  odom_msg.twist.twist.angular.x = angular_vel_z * M_PI / 180.0;
+  odom_msg.twist.twist.angular.z = angular_vel_z * M_PI / 180.0;
+
+  // Diagonal covariances (x, y, z, roll, pitch, yaw) for sensor fusion. Skid steering
+  // makes the heading the least reliable part: it over-reports rotation by ~5% and
+  // slips on turns. The unobservable 3D components get a large variance.
+  const double pose_var[6] = {1e-3, 1e-3, 1e6, 1e6, 1e6, 1e-2};
+  const double twist_var[6] = {1e-3, 1e-3, 1e6, 1e6, 1e6, 1e-2};
+  for (int i = 0; i < 6; i++) {
+    odom_msg.pose.covariance[i * 7] = pose_var[i];
+    odom_msg.twist.covariance[i * 7] = twist_var[i];
+  }
 
   return odom_msg;
 }

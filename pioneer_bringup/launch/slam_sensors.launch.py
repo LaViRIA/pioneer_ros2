@@ -1,0 +1,84 @@
+"""
+Launches the onboard drivers a Pioneer 3AT needs for off-board SLAM (slam_toolbox).
+
+- Robot description (TF for base_laser_link and imu_link)
+- Aria base driver (odom -> base_link TF, /odom, /cmd_vel)
+- SICK LMS 200 lidar (/scan in base_laser_link)
+- BNO055 USB stick IMU (/imu/data in imu_link), if installed
+
+The lidar and IMU drivers live outside this repository (sick_lms200_node and
+bno055_usb_stick packages in the same workspace).
+"""
+
+import os
+
+from ament_index_python.packages import get_package_share_directory
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+
+    aria_dir = get_package_share_directory('pioneer_aria')
+    description_dir = get_package_share_directory('pioneer_description')
+
+    laser_port = LaunchConfiguration('laser_port')
+    laser_baud = LaunchConfiguration('laser_baud')
+    use_imu = LaunchConfiguration('use_imu')
+
+    declare_laser_port_arg = DeclareLaunchArgument(
+        'laser_port', default_value='/dev/ttyS1',
+        description='Serial port of the SICK LMS 200')
+
+    declare_laser_baud_arg = DeclareLaunchArgument(
+        'laser_baud', default_value='38400',
+        description='Baud rate of the SICK LMS 200')
+
+    declare_use_imu_arg = DeclareLaunchArgument(
+        'use_imu', default_value='true',
+        description='Launch the BNO055 USB stick IMU driver')
+
+    state_publisher_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(description_dir, 'launch', 'state_publisher.launch.py')),
+    )
+
+    aria_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(aria_dir, 'launch', 'aria.launch.py')),
+    )
+
+    laser_node = Node(
+        package='sick_lms200_node',
+        executable='sick_lms200_node',
+        name='sick_lms200_node',
+        output='screen',
+        parameters=[{
+            'serial_port': laser_port,
+            'baud_rate': laser_baud,
+            'frame_id': 'base_laser_link',
+        }],
+    )
+
+    # The URDF already defines imu_link, so the IMU launch must not publish its own TF.
+    imu_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(
+            get_package_share_directory('bno055_usb_stick'), 'launch',
+            'bno055_usb_stick.launch.py')),
+        launch_arguments={'publish_tf': 'false'}.items(),
+        condition=IfCondition(use_imu),
+    )
+
+    return LaunchDescription([
+        declare_laser_port_arg,
+        declare_laser_baud_arg,
+        declare_use_imu_arg,
+        state_publisher_launch,
+        aria_launch,
+        laser_node,
+        imu_launch,
+    ])
