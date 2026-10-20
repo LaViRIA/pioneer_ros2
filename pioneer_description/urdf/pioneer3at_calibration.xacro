@@ -32,10 +32,12 @@
   <xacro:property name="footprint_rot_y" value="0.0" />
   <xacro:property name="footprint_rot_z" value="0.0" />
 
-  <!-- Top laser (base_laser_link) -->
+  <!-- Top laser (base_laser_link), relative to lidar_support. The SICK LMS 200 faces
+       forward with its scan plane 0.34 m above the floor and 0.125 m ahead of the robot
+       center (measured 2026-10-20); top_plate is at z = 0.274. -->
   <xacro:property name="top_laser_trans_x" value="0.0" />
   <xacro:property name="top_laser_trans_y" value="0.0" />
-  <xacro:property name="top_laser_trans_z" value="0.23" />
+  <xacro:property name="top_laser_trans_z" value="0.066" />
   <xacro:property name="top_laser_rot_x" value="0.0" />
   <xacro:property name="top_laser_rot_y" value="0.0" />
   <xacro:property name="top_laser_rot_z" value="0.0" />
@@ -81,7 +83,7 @@
   <xacro:property name="back_right_axle_trans_z" value="0.111" />
 
   <!-- Top Laser Support (lidar support) -->
-  <xacro:property name="top_laser_support_trans_x" value="-0.07" />
+  <xacro:property name="top_laser_support_trans_x" value="0.122" />
   <xacro:property name="top_laser_support_trans_y" value="0.0" />
   <xacro:property name="top_laser_support_trans_z" value="0.0" />
   <xacro:property name="top_laser_support_rot_x" value="0.0" />
